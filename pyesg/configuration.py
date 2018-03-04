@@ -245,7 +245,7 @@ class PyESGConfiguration(JSONSerialisableClass):
     Attributes:
         number_of_simulations (int): The number of simulations to produce.
         number_of_projection_steps (int): The number of time steps to project in the simulations.
-        time_step_length (float): The length of each time step, in years.
+        projection_frequency (str): The frequency of projections. (e.g. 'annually', 'monthly', 'weekly')
         number_of_batches (int): The number of batches into which the simulations are split during generation.
         random_seed (int): The random seed to use when generating random samples.
         economies (list[Economy]): A list of the economies being modelled.
@@ -264,7 +264,7 @@ class PyESGConfiguration(JSONSerialisableClass):
         self.number_of_projection_steps = None  # type: int
         self.output_file_directory = None  # type: str
         self.output_file_name = None  # type: str
-        self.time_step_length = None  # type: float
+        self.projection_frequency = None  # type: str
         self.number_of_batches = None  # type: int
         self.random_seed = None  # type: int
         self.economies = []  # type: List[Economy]
