@@ -2,7 +2,7 @@ import json
 
 from collections import OrderedDict
 from typing import List, Dict
-from voluptuous import All, In, Maybe, Range, Required, Schema, IsDir
+from voluptuous import All, Date, In, Maybe, Range, Required, Schema, IsDir
 
 from pyesg.constants.projection_frequency import PROJECTION_FREQUENCIES
 
@@ -306,6 +306,7 @@ class PyESGConfiguration(JSONSerialisableClass):
         'projection_frequency': In(PROJECTION_FREQUENCIES),
         'number_of_batches': All(int, Range(min=1)),
         'random_seed': int,
+        'start_date': Date(),
         'economies': [Economy._validation_schema],
         'correlations': Correlations._validation_schema,
     })
@@ -318,6 +319,7 @@ class PyESGConfiguration(JSONSerialisableClass):
         self.projection_frequency = None  # type: str
         self.number_of_batches = None  # type: int
         self.random_seed = None  # type: int
+        self.start_date = None  # type: str
         self.economies = []  # type: List[Economy]
         self.correlations = Correlations()  # type: Correlations
         super().__init__(**kwargs)
