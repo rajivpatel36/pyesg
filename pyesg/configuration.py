@@ -2,6 +2,9 @@ import json
 
 from collections import OrderedDict
 from typing import List, Dict
+from voluptuous import All, In, Maybe, Range, Required, Schema, IsDir
+
+from pyesg.constants.projection_frequency import PROJECTION_FREQUENCIES
 
 
 def _has_parameters(Cls):
@@ -27,6 +30,7 @@ class JSONSerialisableClass:
     """
     _serialisable_lists = {}  # type: Dict[str, JSONSerialisableClass]
     _serialisable_attrs = {}  # type: Dict[str, JSONSerialisableClass]
+    _validation_schema = None
 
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
@@ -68,6 +72,11 @@ class Parameter(JSONSerialisableClass):
         id (str): The id (or name) for the parameter.
         value (float): The parameter value.
     """
+    _validation_schema = Schema({
+        Required('id'): str,
+        Required('value'): float,
+    })
+
     def __init__(self, **kwargs):
         self.id = None  # type: str
         self.value = None  # type: float
@@ -87,6 +96,13 @@ class Output(JSONSerialisableClass):
     _serialisable_lists = {
         'parameters': Parameter,
     }
+
+    _validation_schema = Schema({
+        Required('id'): str,
+        Required('type'): str,
+        Required('initial_value'): Maybe(float),
+        Required('parameters'): [Parameter._validation_schema],
+    })
 
     def __init__(self, **kwargs):
         self.id = None  # type: str
@@ -108,6 +124,12 @@ class RandomDriver(JSONSerialisableClass):
     _serialisable_lists = {
         'parameters': Parameter,
     }
+
+    _validation_schema = Schema({
+        'id': str,
+        'distribution': str,
+        'parameters': [Parameter._validation_schema],
+    })
 
     def __init__(self, **kwargs):
         self.id = None  # type: str
@@ -133,6 +155,12 @@ class AssetClass(JSONSerialisableClass):
         'outputs': Output,
         'random_drivers': RandomDriver,
     }
+
+    _validation_schema = Schema({
+        'parameters': [Parameter._validation_schema],
+        'outputs': [Output._validation_schema],
+        'random_drivers': [RandomDriver._validation_schema],
+    })
 
     def __init__(self, **kwargs):
         self.id = None  # type: str
@@ -163,6 +191,13 @@ class Correlations(JSONSerialisableClass):
     """
     Represents the correlation matrix between the random drivers in the pyESG configuration.
     """
+    _validation_schema = Schema([
+        {
+            Required('row_id'): str,
+            Required('column_id'): str,
+            Required('correlation'): float,
+        }
+    ])
     def __init__(self, **kwargs):
         self._correlations = OrderedDict()
         super().__init__(**kwargs)
@@ -232,6 +267,10 @@ class Economy(JSONSerialisableClass):
     _serialisable_lists = {
         'asset_classes': AssetClass,
     }
+    _validation_schema = Schema({
+        'id': str,
+        'asset_classes': [AssetClass._validation_schema],
+    })
 
     def __init__(self, **kwargs):
         self.id = None  # type: str
@@ -258,6 +297,18 @@ class PyESGConfiguration(JSONSerialisableClass):
     _serialisable_attrs = {
         'correlations': Correlations,
     }
+
+    _validation_schema = Schema({
+        'number_of_simulations': All(int, Range(min=1)),
+        'number_of_projection_steps': All(int, Range(min=1)),
+        'output_file_directory': IsDir(),
+        'output_file_name': str,
+        'projection_frequency': In(PROJECTION_FREQUENCIES),
+        'number_of_batches': All(int, Range(min=1)),
+        'random_seed': int,
+        'economies': [Economy._validation_schema],
+        'correlations': Correlations._validation_schema,
+    })
 
     def __init__(self, **kwargs):
         self.number_of_simulations = None  # type: int
@@ -295,3 +346,11 @@ class PyESGConfiguration(JSONSerialisableClass):
         """
         with open(file_path, 'w') as engine_settings_file:
             json.dump(self._encode_json(), engine_settings_file, indent=4)
+
+
+    def validate(self):
+        """
+        Validates the configuration.
+        """
+        json_obj = self._encode_json()
+        self._validation_schema(json_obj)
