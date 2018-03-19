@@ -2,7 +2,7 @@ import json
 
 from collections import OrderedDict
 from typing import List, Dict
-from voluptuous import All, Date, In, Maybe, Range, Required, Schema, IsDir
+from voluptuous import All, Coerce, Date, In, Maybe, Range, Required, Schema, IsDir
 
 from pyesg.constants.projection_frequency import PROJECTION_FREQUENCIES
 
@@ -19,8 +19,9 @@ def _has_parameters(Cls):
     """
     class AugmentedCls(Cls):
         def add_parameter(self, id: str, value: str):
-            parameter = Parameter(id=id, value=value)
-            self.parameters.append(parameter)
+            if hasattr(self.parameters, id):
+                raise ValueError("Object already has a parameter {id}".format(id=id))
+            setattr(self.parameters, id, value)
     return AugmentedCls
 
 
@@ -65,22 +66,13 @@ class JSONSerialisableClass:
         return instance
 
 
-class Parameter(JSONSerialisableClass):
+class Parameters(JSONSerialisableClass):
     """
-    Represents a parameter in the pyESG configuration.
-    Attributes:
-        id (str): The id (or name) for the parameter.
-        value (float): The parameter value.
+    Represents a set of parameters in the pyESG configuration.
     """
     _validation_schema = Schema({
-        Required('id'): str,
-        Required('value'): float,
+        str: Coerce(float)
     })
-
-    def __init__(self, **kwargs):
-        self.id = None  # type: str
-        self.value = None  # type: float
-        super().__init__(**kwargs)
 
 
 @_has_parameters
@@ -93,48 +85,22 @@ class Output(JSONSerialisableClass):
         initial_value (float): The initial value for the output.
         parameters (List[Parameter]): A list of the parameters associated with the output.
     """
-    _serialisable_lists = {
-        'parameters': Parameter,
+    _serialisable_attrs = {
+        'parameters': Parameters,
     }
 
     _validation_schema = Schema({
         Required('id'): str,
         Required('type'): str,
-        Required('initial_value'): Maybe(float),
-        Required('parameters'): [Parameter._validation_schema],
+        Required('initial_value'): Maybe(Coerce(float)),
+        Required('parameters'): Parameters._validation_schema,
     })
 
     def __init__(self, **kwargs):
         self.id = None  # type: str
         self.type = None  # type: str
         self.initial_value = None  # type: float
-        self.parameters = []  # type: List[Parameter]
-        super().__init__(**kwargs)
-
-
-@_has_parameters
-class RandomDriver(JSONSerialisableClass):
-    """
-    Represents a random driver for a model in the pyESG configuration.
-    Attributes:
-        id (str): The id (or name) for the random driver.
-        distribution (str): The underlying statistical distribution from which samples for this driver come from.
-        parameters (List[Parameter]): A list of the parameters associated with the distribution for the random driver.
-    """
-    _serialisable_lists = {
-        'parameters': Parameter,
-    }
-
-    _validation_schema = Schema({
-        'id': str,
-        'distribution': str,
-        'parameters': [Parameter._validation_schema],
-    })
-
-    def __init__(self, **kwargs):
-        self.id = None  # type: str
-        self.distribution = None  # type: str
-        self.parameters = []  # type: List[Parameter]
+        self.parameters = Parameters()  # type: Parameters
         super().__init__(**kwargs)
 
 
@@ -150,24 +116,29 @@ class AssetClass(JSONSerialisableClass):
         random_drivers (List[RandomDriver]): A list of the random drivers associated with the model.
         dependencies (List[str]): A list of the ids of other asset classes upon which this asset class depends.
     """
+    _serialisable_attrs = {
+        'parameters': Parameters,
+    }
+
     _serialisable_lists = {
-        'parameters': Parameter,
         'outputs': Output,
-        'random_drivers': RandomDriver,
     }
 
     _validation_schema = Schema({
-        'parameters': [Parameter._validation_schema],
-        'outputs': [Output._validation_schema],
-        'random_drivers': [RandomDriver._validation_schema],
+        Required('id'): str,
+        Required('model_id'): str,
+        Required('parameters'): Parameters._validation_schema,
+        Required('outputs'): [Output._validation_schema],
+        Required('random_drivers'): [str],
+        Required('dependencies'): [str],
     })
 
     def __init__(self, **kwargs):
         self.id = None  # type: str
         self.model_id = None  # type: str
-        self.parameters = []  # type: List[Parameter]
+        self.parameters = Parameters()  # type: Parameters
         self.outputs = []   # type: List[Output]
-        self.random_drivers = []  # type: List[RandomDriver]
+        self.random_drivers = []  # type: List[str]
         self.dependencies = []  # type: List[str]
         super().__init__(**kwargs)
 
@@ -268,8 +239,8 @@ class Economy(JSONSerialisableClass):
         'asset_classes': AssetClass,
     }
     _validation_schema = Schema({
-        'id': str,
-        'asset_classes': [AssetClass._validation_schema],
+        Required('id'): str,
+        Required('asset_classes'): [AssetClass._validation_schema],
     })
 
     def __init__(self, **kwargs):
@@ -299,16 +270,16 @@ class PyESGConfiguration(JSONSerialisableClass):
     }
 
     _validation_schema = Schema({
-        'number_of_simulations': All(int, Range(min=1)),
-        'number_of_projection_steps': All(int, Range(min=1)),
-        'output_file_directory': IsDir(),
-        'output_file_name': str,
-        'projection_frequency': In(PROJECTION_FREQUENCIES),
-        'number_of_batches': All(int, Range(min=1)),
-        'random_seed': int,
-        'start_date': Date(),
-        'economies': [Economy._validation_schema],
-        'correlations': Correlations._validation_schema,
+        Required('number_of_simulations'): All(int, Range(min=1)),
+        Required('number_of_projection_steps'): All(int, Range(min=1)),
+        Required('output_file_directory'): IsDir(),
+        Required('output_file_name'): str,
+        Required('projection_frequency'): In(PROJECTION_FREQUENCIES),
+        Required('number_of_batches'): All(int, Range(min=1)),
+        Required('random_seed'): int,
+        Required('start_date'): Date(),
+        Required('economies'): [Economy._validation_schema],
+        Required('correlations'): Correlations._validation_schema,
     })
 
     def __init__(self, **kwargs):
