@@ -1,0 +1,1 @@
+TOTAL_RETURN_INDEX = 'total_return_index'
