@@ -1,3 +1,4 @@
+binaryio
 numpy
 python-dateutil
 scipy

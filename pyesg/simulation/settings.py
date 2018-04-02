@@ -47,7 +47,9 @@ class InitialisedSettings:
         }
         rrule_frequency = frequency_mapping[pyesg_config.projection_frequency]
         start_date = parser.parse(pyesg_config.start_date)
-        dates_gen = rrule.rrule(freq=rrule_frequency, dtstart=start_date, count=pyesg_config.number_of_projection_steps)
+        dates_gen = rrule.rrule(freq=rrule_frequency,
+                                dtstart=start_date,
+                                count=pyesg_config.number_of_projection_steps + 1)  # Add 1 to account for initial step
         self.projection_dates = list(dates_gen)
 
         annualisation_factor_mapping = {
@@ -69,9 +71,19 @@ class InitialisedSettings:
         self.specified_model_outputs = []
         self.dependent_model_outputs = []
 
+        self.output_values = None
+
+    def reset_output_values(self):
+        """
+        Resets the `output_values` attribute to an array of zeros.
+
+        This should be used in between batches of simulations to reset the values.
+        """
+        batch_size = int(self.config.number_of_simulations / self.config.number_of_batches)
+        # Add 1 to number of projection steps because the value in config doesn't include initial time step.
         self.output_values = np.zeros([self.number_outputs,
-                                       pyesg_config.number_of_projection_steps + 1,
-                                       pyesg_config.number_of_simulations])
+                                       self.config.number_of_projection_steps + 1,
+                                       batch_size])
 
 
 def validate_initialised_settings(settings: InitialisedSettings):

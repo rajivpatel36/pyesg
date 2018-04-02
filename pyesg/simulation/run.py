@@ -1,6 +1,8 @@
 import numpy as np
+import os
 
 from pyesg.configuration import PyESGConfiguration
+from pyesg.io.writer import PyESGWriter
 from pyesg.simulation.models.model_factory import get_model_for_asset_class
 from pyesg.simulation.settings import InitialisedSettings, validate_initialised_settings
 
@@ -62,9 +64,16 @@ def generate_simulations_from_config(pyesg_config: PyESGConfiguration):
     settings = InitialisedSettings(pyesg_config)
     validate_initialised_settings(settings)
 
+    # Initialise PyESG writer to write results to binary file.
+    output_file_path = os.path.join(pyesg_config.output_file_directory, pyesg_config.output_file_name + ".pyesg")
+    pyesg_writer = PyESGWriter(output_file_path)
+    pyesg_writer.write_header(pyesg_config.number_of_simulations, settings.output_ids, settings.projection_dates)
+
     initialise_models_and_outputs(settings)
 
     for batch_number in range(pyesg_config.number_of_batches):
+        settings.reset_output_values()  # Set output values array to zeros.
+
         generated_random_drivers = generate_random_drivers(settings)
         assign_generated_random_drivers_to_models(generated_random_drivers, settings)
 
@@ -72,4 +81,7 @@ def generate_simulations_from_config(pyesg_config: PyESGConfiguration):
             for output in settings.dependent_model_outputs + settings.specified_model_outputs:
                 output.calculate_for_batch(projection_step)
 
-    return settings  # Todo: eventually need to write results to a file.
+        # Add 1 to `batch_number` because it's zero-indexed and the argument expects a one-indexed number.
+        pyesg_writer.write_batch_of_simulations(batch_number + 1, pyesg_config.number_of_batches, settings.output_values)
+
+    pyesg_writer.finalise()
