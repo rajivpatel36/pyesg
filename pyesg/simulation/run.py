@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-from pyesg.configuration import PyESGConfiguration
+from pyesg.configuration.pyesg_configuration import PyESGConfiguration
 from pyesg.io.writer import PyESGWriter
 from pyesg.simulation.models.model_factory import get_model_for_asset_class
 from pyesg.simulation.settings import InitialisedSettings, validate_initialised_settings

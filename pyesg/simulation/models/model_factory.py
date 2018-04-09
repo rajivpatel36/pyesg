@@ -1,4 +1,4 @@
-from pyesg.configuration import AssetClass
+from pyesg.configuration.pyesg_configuration import AssetClass
 from pyesg.constants.models import *
 from pyesg.simulation.exceptions import ModelNotExistsError
 from pyesg.simulation.models.base_model import BaseModel

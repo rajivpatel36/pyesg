@@ -2,7 +2,7 @@ import numpy as np
 
 from typing import Dict, Type
 
-from pyesg.configuration import AssetClass, Output
+from pyesg.configuration.pyesg_configuration import AssetClass, Output
 from pyesg.simulation.exceptions import OutputNotExistsError
 from pyesg.simulation.settings import InitialisedSettings
 

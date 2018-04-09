@@ -3,7 +3,7 @@ import numpy as np
 
 from dateutil import parser, rrule
 
-from pyesg.configuration import PyESGConfiguration
+from pyesg.configuration.pyesg_configuration import PyESGConfiguration
 from pyesg.constants.projection_frequency import *
 from pyesg.utils import get_duplicates
 
