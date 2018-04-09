@@ -16,13 +16,15 @@ class PyESGWriter:
         self._header_start_position = 8  # First 8 bytes are reserved for timestamp written when finalising file
         self._header_end_position = None
 
-    def write_header(self, number_simulations: int, output_ids: List[str], projection_dates: List[datetime]):
+    def write_header(self, number_simulations: int, output_ids: List[str], projection_dates: List[datetime],
+                     annualisation_factor: float):
         """
         Writes header information for the binary file.
         Args:
             number_simulations: The total number of simulations.
             output_ids: The list of output ids in the file.
             projection_dates: The list of projection dates in the file.
+            annualisation_factor: The number of projection steps per year.
         """
         self._writer.seek(self._header_start_position)
         number_outputs = len(output_ids)
@@ -31,6 +33,7 @@ class PyESGWriter:
         self._writer.write_uint32(number_simulations)
         self._writer.write_uint32(number_outputs)
         self._writer.write_uint32(number_projection_dates)
+        self._writer.write_single(annualisation_factor)
 
         for output_id in output_ids:
             self._writer.write_length_prefixed_string(output_id)

@@ -19,6 +19,7 @@ class PyESGReader:
         self._number_sims = self._reader.read_uint32()
         self._number_outputs = self._reader.read_uint32()
         self._number_steps = self._reader.read_uint32()
+        self._annualisation_factor = self._reader.read_single()
         self._output_ids = [self._reader.read_length_prefixed_string() for _ in range(self._number_outputs)]
         self._time_step_dates = [datetime.fromtimestamp(self._reader.read_uint64()) for _ in range(self._number_steps)]
         self._header_end_position = self._reader.tell()
@@ -106,6 +107,15 @@ class PyESGReader:
             The dates for all projection time steps in the file.
         """
         return self._time_step_dates[1:]
+
+    @property
+    def annualisation_factor(self) -> float:
+        """
+        Returns the annualisation factor for projections - the number of projection steps per year.
+        Returns:
+            The annualisation factor for projections.
+        """
+        return self._annualisation_factor
 
 
     def _get_seek_position_for_output(self, output_index: int) -> int:

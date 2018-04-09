@@ -67,7 +67,12 @@ def generate_simulations_from_config(pyesg_config: PyESGConfiguration):
     # Initialise PyESG writer to write results to binary file.
     output_file_path = os.path.join(pyesg_config.output_file_directory, pyesg_config.output_file_name + ".pyesg")
     pyesg_writer = PyESGWriter(output_file_path)
-    pyesg_writer.write_header(pyesg_config.number_of_simulations, settings.output_ids, settings.projection_dates)
+    pyesg_writer.write_header(
+        pyesg_config.number_of_simulations,
+        settings.output_ids,
+        settings.projection_dates,
+        settings.annualisation_factor,
+    )
 
     initialise_models_and_outputs(settings)
 
