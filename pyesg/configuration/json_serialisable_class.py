@@ -1,5 +1,7 @@
 import json
+
 from collections import OrderedDict
+from typing import Dict
 
 
 class JSONSerialisableClass:
@@ -41,3 +43,21 @@ class JSONSerialisableClass:
                 set_value = value
             instance.__setattr__(key, set_value)
         return instance
+
+
+def _has_parameters(Cls):
+    """
+    A decorator for any class which has parameters which creates an add_parameter method for the class.
+    Args:
+        Cls: The class with parameters
+
+    Returns:
+        An augmented class version of the original class which has an add_parameter method.
+
+    """
+    class AugmentedCls(Cls):
+        def add_parameter(self, id: str, value: str):
+            if hasattr(self.parameters, id):
+                raise ValueError("Object already has a parameter {id}".format(id=id))
+            setattr(self.parameters, id, value)
+    return AugmentedCls

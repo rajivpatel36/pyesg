@@ -3,26 +3,8 @@ from collections import OrderedDict
 
 from voluptuous import Schema, Coerce, Required, Maybe, All, Range, IsDir, In, Date
 
-from pyesg.configuration.json_serialisable_class import JSONSerialisableClass
+from pyesg.configuration.json_serialisable_class import JSONSerialisableClass, _has_parameters
 from pyesg.constants.projection_frequency import PROJECTION_FREQUENCIES
-
-
-def _has_parameters(Cls):
-    """
-    A decorator for any class which has parameters which creates an add_parameter method for the class.
-    Args:
-        Cls: The class with parameters
-
-    Returns:
-        An augmented class version of the original class which has an add_parameter method.
-
-    """
-    class AugmentedCls(Cls):
-        def add_parameter(self, id: str, value: str):
-            if hasattr(self.parameters, id):
-                raise ValueError("Object already has a parameter {id}".format(id=id))
-            setattr(self.parameters, id, value)
-    return AugmentedCls
 
 
 class Parameters(JSONSerialisableClass):
