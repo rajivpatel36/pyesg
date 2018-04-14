@@ -25,7 +25,6 @@ class BaseValidator:
             The results of the validation analysis.
         """
         return {
-            "asset_class_id": self._asset_class.id,
             "analysis_id": self.analysis_id,
             "result_type": self.result_type,
             "results": self._validate(analysis_settings),
