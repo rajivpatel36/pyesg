@@ -84,6 +84,7 @@ class ValidationConfiguration(JSONSerialisableClass):
         self.output_file_directory = None  # type: str
         self.output_file_name = None  # type: str
         self.asset_classes = []  # type: List[AssetClass]
+        super().__init__(**kwargs)
 
     @classmethod
     def load_from_file(cls, file_path: str) -> 'ValidationConfiguration':

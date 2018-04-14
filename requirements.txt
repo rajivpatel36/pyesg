@@ -1,4 +1,5 @@
 binaryio
+bokeh
 numpy
 python-dateutil
 scipy
