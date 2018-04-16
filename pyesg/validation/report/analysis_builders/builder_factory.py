@@ -1,9 +1,11 @@
 from pyesg.constants.validation_analyses import *
 from pyesg.validation.report.analysis_builders.base.base_builder import BaseBuilder
 from pyesg.validation.report.analysis_builders.discounted_tri_builder import DiscountedTRIBuilder
+from pyesg.validation.report.analysis_builders.tri_log_return_moments_builder import TRILogReturnMomentsBuilder
 
 BUILDERS = {
     DISCOUNTED_TOTAL_RETURN_INDEX: DiscountedTRIBuilder,
+    TOTAL_RETURN_INDEX_LOG_RETURN_MOMENTS: TRILogReturnMomentsBuilder,
 }
 
 

@@ -8,6 +8,6 @@ class DiscountedTRIBuilder(MartingaleAnalysisBuilder):
     """
     title = "Discounted TRI"
 
-    def perform_additional_formatting(self, charter: LineChart):
+    def perform_additional_formatting(self, charter: LineChart) -> None:
         # Adjust y-axis:w
         charter.set_y_range(0.8, 1.2)

@@ -4,6 +4,7 @@ from pyesg.configuration.pyesg_configuration import AssetClass, PyESGConfigurati
 from pyesg.validation.data_extractor import DataExtractor
 from pyesg.validation.validators.base_validator import BaseValidator
 from pyesg.validation.validators.discounted_tri_validator import DiscountedTRIValidator
+from pyesg.validation.validators.tri_log_return_moments import TRILogReturnMomentsValidator
 
 
 class ValidatorFactory:
@@ -12,6 +13,7 @@ class ValidatorFactory:
     """
     _validators = {cls.analysis_id: cls for cls in [
         DiscountedTRIValidator,
+        TRILogReturnMomentsValidator,
     ]}
 
     def __init__(self, pyesg_config: PyESGConfiguration):

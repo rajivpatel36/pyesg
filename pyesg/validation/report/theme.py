@@ -11,6 +11,7 @@ REPORT_THEME = Theme(json={
             'line_width': 2,
         },
         'Legend': {
+            'label_width': 75,
             'label_text_font_size': "8pt",
             'background_fill_alpha': 0,
             'border_line_alpha': 0,

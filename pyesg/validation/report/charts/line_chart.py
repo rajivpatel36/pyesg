@@ -11,23 +11,25 @@ class LineChart(BaseChart):
     """
     Used to create figures for line chart plots.
     """
-    def set_x_range(self, lower_limit: Union[float, int], upper_limit: Union[float, int]) -> None:
+    def set_x_range(self, lower_limit: Union[float, int, None], upper_limit: Union[float, int, None]) -> None:
         """
         Sets the range for the x-axis of the chart.
         Args:
             lower_limit: The lower limit for the axis.
             upper_limit: The upper limit for the axis
         """
-        self._figure.x_range = _get_range([lower_limit, upper_limit])
+        self._figure.x_range.start = lower_limit
+        self._figure.x_range.end = upper_limit
 
-    def set_y_range(self, lower_limit: Union[float, int], upper_limit: Union[float, int]) -> None:
+    def set_y_range(self, lower_limit: Union[float, int, None], upper_limit: Union[float, int, None]) -> None:
         """
         Sets the range for the y-axis of the chart.
         Args:
             lower_limit: The lower limit for the axis.
             upper_limit: The upper limit for the axis
         """
-        self._figure.y_range = _get_range([lower_limit, upper_limit])
+        self._figure.y_range.start = lower_limit
+        self._figure.y_range.end = upper_limit
 
     def plot(self, data_source: ColumnDataSource, x: str, ys: List[dict], **kwargs) -> None:
         """
@@ -58,13 +60,13 @@ class LineChart(BaseChart):
 
             plots.append(plot)
 
-        self._figure.legend.location = None
         self._figure.title.align = 'center'
-        # Only need legend if more than one series
-        if len(ys) > 1:
-            legend = Legend(items=legend_entries, location=(0,0))
-            legend.click_policy = 'mute'
-            self._figure.add_layout(legend, 'right')
+
+        # Remove default legend and add a legend outside the chart
+        self._figure.legend.location = None
+        legend = Legend(items=legend_entries, location=(0,0))
+        legend.click_policy = 'mute'
+        self._figure.add_layout(legend, 'right')
 
         # Create a hover tool
         x_tooltip = (self._figure.xaxis[0].axis_label or x, f"@{x}")
