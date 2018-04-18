@@ -132,7 +132,7 @@ class Correlations(JSONSerialisableClass):
         if min_id == max_id:
             return 1.0
         else:
-            return self._correlations.get((min_id, max_id), default=0.0)
+            return self._correlations.get((min_id, max_id), 0.0)
 
     def set_correlation(self, row_id: str, column_id: str, correlation: float):
         """
