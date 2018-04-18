@@ -11,7 +11,9 @@ from pyesg.validation.validators.base_validator import BaseValidator
 
 class AverageDiscountFactorValidator(BaseValidator):
     """
-    Performs discounted TRI martingale analysis.
+    Performs average discount factor validation analysis.
+
+    The expected value of the discount value at time t is equal to the point on the initial yield curve for term t.
     """
     analysis_id = AVERAGE_DISCOUNT_FACTOR
     result_type = MARTINGALE

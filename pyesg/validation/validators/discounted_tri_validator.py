@@ -11,6 +11,8 @@ from pyesg.validation.validators.base_validator import BaseValidator
 class DiscountedTRIValidator(BaseValidator):
     """
     Performs discounted TRI martingale analysis.
+
+    The expected value of the discounted TRI is the initial value of the TRI.
     """
     analysis_id = DISCOUNTED_TOTAL_RETURN_INDEX
     result_type = MARTINGALE
