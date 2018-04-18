@@ -1,6 +1,8 @@
 import numpy as np
 import os
 
+from typing import Union
+
 from pyesg.configuration.pyesg_configuration import PyESGConfiguration
 from pyesg.io.writer import PyESGWriter
 from pyesg.simulation.models.model_factory import get_model_for_asset_class
@@ -54,12 +56,16 @@ def initialise_models_and_outputs(settings: InitialisedSettings):
         output.initialise_output()
 
 
-def generate_simulations_from_config(pyesg_config: PyESGConfiguration):
+def generate_simulations(pyesg_config: Union[str, PyESGConfiguration]):
     """
     Generates simulations based on pyESG configuration object.
     Args:
-        pyesg_config: The pyESG configuration object
+        pyesg_config: The pyESG configuration object or the file path for the configuration file.
     """
+    # Load the config if it has been specified as a file path.
+    if isinstance(pyesg_config, str):
+        pyesg_config = PyESGConfiguration.load_from_file(pyesg_config)
+
     pyesg_config.validate()
     settings = InitialisedSettings(pyesg_config)
     validate_initialised_settings(settings)
