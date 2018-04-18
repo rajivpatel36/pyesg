@@ -61,7 +61,7 @@ class PyESGWriter:
         size_of_float = 4  # 4 bytes per float
         start_of_batch_within_output = (batch_number - 1) * number_simulations_in_batch * number_steps_in_batch \
                                        * size_of_float
-        size_of_each_output = total_batches * number_simulations_in_batch * size_of_float
+        size_of_each_output = total_batches * number_simulations_in_batch * number_steps_in_batch * size_of_float
 
         for i_output in range(number_outputs_in_batch):
             output_sims = simulations[i_output, :, :]
