@@ -1,7 +1,7 @@
 import numpy as np
 
 from pyesg.configuration.validation_configuration import ValidationAnalysis
-from pyesg.constants.outputs import TOTAL_RETURN_INDEX
+from pyesg.constants.outputs import TOTAL_RETURN_INDEX, DISCOUNT_FACTOR
 from pyesg.constants.validation_analyses import DISCOUNTED_TOTAL_RETURN_INDEX
 from pyesg.constants.validation_result_types import MARTINGALE
 from pyesg.validation.utils import get_confidence_level, do_sample_mean_and_confidence_interval_calculations
@@ -30,9 +30,15 @@ class DiscountedTRIValidator(BaseValidator):
         # and therefore already know its id.
         tri_sims = self._data_extractor.reader.get_output_simulations(tri_output.id)
 
+        discount_factor_sims = self._data_extractor.get_output_simulations(
+            asset_class=self._asset_class.dependencies[0],  # Nominal rates asset
+            output_type=DISCOUNT_FACTOR,
+        )
+
+        discounted_tri_sims = discount_factor_sims * tri_sims
         # Get sample mean and upper and lower confidence intervals
         results = do_sample_mean_and_confidence_interval_calculations(
-            array=tri_sims,
+            array=discounted_tri_sims,
             confidence_level=confidence_level,
             annualisation_factor=self._data_extractor.reader.annualisation_factor
         )
