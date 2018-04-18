@@ -67,6 +67,8 @@ class BaseOutput:
         self.output = output
         self.latest_projection_step_calculated = None
         self.latest_projection_step_sims = None
+        self.previous_projection_step_calculated = None
+        self.previous_projection_step_sims = None
 
         if output.id:
             self.output_index = self.settings.output_ids.index(output.id)
@@ -131,6 +133,8 @@ class BaseOutput:
         else:
             sims_batch = self._calculate_values_for_batch(projection_step)
 
+        self.previous_projection_step_calculated = self.latest_projection_step_calculated
+        self.previous_projection_step_sims = self.latest_projection_step_sims
         self.latest_projection_step_calculated = projection_step
         self.latest_projection_step_sims = sims_batch
 
