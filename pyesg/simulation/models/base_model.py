@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import Dict, Type
+from typing import List, Dict, Type
 
 from pyesg.configuration.pyesg_configuration import AssetClass, Output
 from pyesg.simulation.exceptions import OutputNotExistsError
@@ -17,6 +17,7 @@ class BaseModel:
         self.settings = settings
         self.asset_class = asset_class
         self.random_samples = None
+        self.outputs =[]  # type: List[BaseOutput]
 
     def initialise_model(self):
         """
@@ -25,6 +26,7 @@ class BaseModel:
         for output_settings in self.asset_class.outputs:
             output = self.create_output(output_settings)
             self.settings.specified_model_outputs.append(output)
+            self.outputs.append(output)
 
     def create_output(self, output: Output) -> 'BaseOutput':
         """
@@ -76,6 +78,42 @@ class BaseOutput:
         Initialises the output, caching all variables needed during simulation.
         """
         raise NotImplementedError
+
+    def get_or_create_output(self, output_type: str, asset_class_id: str = None,  **output_parameters) -> 'BaseOutput':
+        """
+        Gets an existing or creates a new output of a specified type with specified parameters from any asset class.
+        Args:
+            output_type: The output type.
+            asset_class_id: The id of the asset class for the output. If None, it is assumed to be the existing asset
+                            class.
+            **output_parameters: The parameters of the output specified as kwargs. The key is the parameter name
+                                 and the value is the parameter value.
+
+        Returns:
+            The output for the specified asset class with the specified type and parameters.
+        """
+        # If no asset class id specified then assume you are looking for output in existing model (most common case)
+        if asset_class_id is None:
+            model = self.model
+        else:
+            try:
+                model = next(m for m in self.settings.asset_class_models if m.asset_class.id == asset_class_id)
+            except StopIteration:
+                raise ValueError(f"Asset class with id {asset_class_id} does not exist.")
+
+        # Search through the model outputs to see if the required output already exists
+        for output in model.outputs:
+            if output.output.type == output_type and output.output.parameters.__dict__ == output_parameters:
+                return output
+
+        # If output doesn't exist then create and initialise it
+        output = Output(type=output_type, **output_parameters)
+        model_output = self.model.create_output(output)
+        self.settings.dependent_model_outputs.append(model_output)
+        self.model.outputs.append(model_output)
+
+        model_output.initialise_output()
+        return model_output
 
     def calculate_for_batch(self, projection_step: int):
         """
