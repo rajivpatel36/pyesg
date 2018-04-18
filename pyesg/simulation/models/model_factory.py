@@ -3,10 +3,13 @@ from pyesg.constants.models import *
 from pyesg.simulation.exceptions import ModelNotExistsError
 from pyesg.simulation.models.base_model import BaseModel
 from pyesg.simulation.models.black_scholes_model import BlackScholesModel
+from pyesg.simulation.models.hull_white_model import HullWhiteModel
 from pyesg.simulation.settings import InitialisedSettings
 
 MODELS = {
     BLACK_SCHOLES: BlackScholesModel,
+    HULL_WHITE: HullWhiteModel,
+
 }
 
 
