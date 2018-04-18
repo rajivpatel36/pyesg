@@ -12,6 +12,7 @@ class MartingaleAnalysisBuilder(BaseBuilder):
     Base class for building the charts for a martingale analysis.
     """
     title = None
+    y_axis_label = None
 
     def perform_additional_formatting(self, charter: LineChart) -> None:
         """
@@ -33,7 +34,7 @@ class MartingaleAnalysisBuilder(BaseBuilder):
         """
         if not self.title:
             raise ValueError("No title for the chart for a martingale analysis.")
-        charter = MartingaleChart(title=self.title, x_axis_label="Time (y)")
+        charter = MartingaleChart(title=self.title, x_axis_label="Time (y)", y_axis_label=self.y_axis_label)
         charter.plot_from_results(results=results, sample_mean_name=self.title)
         self.perform_additional_formatting(charter)
         return charter.figure

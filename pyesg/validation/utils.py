@@ -1,7 +1,6 @@
 import numpy as np
 
 from scipy.stats import norm, skew, kurtosis
-from typing import Tuple
 
 from pyesg.configuration.validation_configuration import ValidationAnalysis
 

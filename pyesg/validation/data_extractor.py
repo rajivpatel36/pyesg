@@ -39,7 +39,6 @@ class DataExtractor:
         except StopIteration:
             raise ValueError(f"Output of type {output_type} does not exist with parameters {output_parameters}.")
 
-
     def get_output_simulations(self, asset_class: AssetClass, output_type: str, time_step: int = None, **output_parameters):
         """
         Returns the simulations for an output in an asset class matching the specified arguments.
