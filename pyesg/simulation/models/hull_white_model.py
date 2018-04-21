@@ -3,6 +3,7 @@ import numpy as np
 from pyesg.constants.outputs import BROWNIAN_MOTION, OU_PROCESS, DISCOUNT_FACTOR, CASH_ACCOUNT
 from pyesg.simulation.models.base_model import BaseModel, BaseOutput
 from pyesg.simulation.utils import extract_yield_curve_from_parameters
+from pyesg.yield_curve import yield_curve
 
 
 class HullWhiteOutputBrownianMotion(BaseOutput):
@@ -47,13 +48,12 @@ class HullWhiteOutputDiscountFactor(BaseOutput):
 
     def _calculate_values_for_batch(self, projection_step: int):
         time = projection_step / self.settings.annualisation_factor
-        initial_yield_curve_point = self.model.yield_curve.get_rate(time)
         term_1 = (self.sigma * self.sigma) / (4 * self.alpha ** 3) * \
                    (2 * self.alpha * time - 3 + 4 * np.exp(- self.alpha * time) - np.exp(-2 * self.alpha * time))
         term_2 = self.sigma / self.alpha * self.brownian_motion_output.calculate_for_batch(projection_step)
         term_3 = - self.sigma / self.alpha * self.ou_process_output.calculate_for_batch(projection_step)
 
-        zcb = np.exp(-time * initial_yield_curve_point)
+        zcb = self.model.yield_curve.get_rate(time, yield_curve.ZCB)
         return zcb * np.exp(-(term_1 + term_2 + term_3))
 
 
