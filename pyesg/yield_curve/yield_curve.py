@@ -1,6 +1,10 @@
 import bisect
+import numpy as np
 
 from typing import Dict, List
+
+CC_SPOT_RATE = "cc_spot_rate"
+ZCB = "zcb"
 
 
 class YieldCurve:
@@ -15,6 +19,11 @@ class YieldCurve:
         self._is_sorted = False
         self._max_term = None
         self._min_term = None
+
+        self._rate_functions = {
+            CC_SPOT_RATE: self._get_spot_rate,
+            ZCB: self._get_zcb,
+        }
 
     def _resort_terms_and_rates(self) -> None:
         """
@@ -36,7 +45,14 @@ class YieldCurve:
         self._mapping[term] = rate
         self._is_sorted = False
 
-    def get_rate(self, term: float) -> float:
+    def get_rate(self, term: float, rate_type: str = CC_SPOT_RATE):
+        rate_function = self._rate_functions.get(rate_type)
+        if not rate_function:
+            raise ValueError(f"Rate type {rate_type} is not supported.")
+
+        return rate_function(term)
+
+    def _get_spot_rate(self, term: float) -> float:
         """
         Returns a rate with the specified term. If the term does not exist, interpolation between points is attempted.
         Args:
@@ -75,3 +91,15 @@ class YieldCurve:
 
         # interpolate
         return rate_before + (term - term_before) / (term_after - term_before) * (rate_after - rate_before)
+
+    def _get_zcb(self, term: float) -> float:
+        """
+        Returns a rate with the specified term. If the term does not exist, interpolation between points is attempted.
+        Args:
+            term: The term of the point on the yield curve.
+
+        Returns:
+            The rate for the specified term expressed as a zero coopon bond price.
+        """
+        cc_rate = self._get_spot_rate(term)
+        return np.exp(- term * cc_rate)
