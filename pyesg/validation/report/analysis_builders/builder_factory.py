@@ -2,11 +2,13 @@ from pyesg.constants.validation_analyses import *
 from pyesg.validation.report.analysis_builders.average_discount_factor_builder import AverageDiscountFactorBuilder
 from pyesg.validation.report.analysis_builders.base.base_builder import BaseBuilder
 from pyesg.validation.report.analysis_builders.discounted_tri_builder import DiscountedTRIBuilder
+from pyesg.validation.report.analysis_builders.discounted_zcb_builder import DiscountedZCBBuilder
 from pyesg.validation.report.analysis_builders.tri_log_return_moments_builder import TRILogReturnMomentsBuilder
 
 BUILDERS = {
     AVERAGE_DISCOUNT_FACTOR: AverageDiscountFactorBuilder,
     DISCOUNTED_TOTAL_RETURN_INDEX: DiscountedTRIBuilder,
+    DISCOUNTED_ZCB: DiscountedZCBBuilder,
     TOTAL_RETURN_INDEX_LOG_RETURN_MOMENTS: TRILogReturnMomentsBuilder,
 }
 

@@ -5,6 +5,7 @@ from pyesg.validation.data_extractor import DataExtractor
 from pyesg.validation.validators.average_discount_factor_validator import AverageDiscountFactorValidator
 from pyesg.validation.validators.base_validator import BaseValidator
 from pyesg.validation.validators.discounted_tri_validator import DiscountedTRIValidator
+from pyesg.validation.validators.discounted_zcb_validator import DiscountedZCBValidator
 from pyesg.validation.validators.tri_log_return_moments import TRILogReturnMomentsValidator
 
 
@@ -15,6 +16,7 @@ class ValidatorFactory:
     _validators = {cls.analysis_id: cls for cls in [
         AverageDiscountFactorValidator,
         DiscountedTRIValidator,
+        DiscountedZCBValidator,
         TRILogReturnMomentsValidator,
     ]}
 

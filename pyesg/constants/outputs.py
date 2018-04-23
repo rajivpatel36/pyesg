@@ -1,6 +1,7 @@
 # Nominal rates
 CASH_ACCOUNT = 'cash_account'
 DISCOUNT_FACTOR = 'discount_factor'
+ZERO_COUPON_BOND = 'zero_coupon_bond'
 
 # Equity
 TOTAL_RETURN_INDEX = 'total_return_index'
