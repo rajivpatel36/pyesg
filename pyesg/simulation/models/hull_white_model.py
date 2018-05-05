@@ -1,6 +1,7 @@
 import numpy as np
 
-from pyesg.constants.outputs import BROWNIAN_MOTION, OU_PROCESS, DISCOUNT_FACTOR, CASH_ACCOUNT, ZERO_COUPON_BOND
+from pyesg.constants.outputs import BROWNIAN_MOTION, OU_PROCESS, DISCOUNT_FACTOR, CASH_ACCOUNT, ZERO_COUPON_BOND, \
+    BOND_INDEX
 from pyesg.simulation.models.base_model import BaseModel, BaseOutput
 from pyesg.simulation.utils import extract_yield_curve_from_parameters
 from pyesg.yield_curve import yield_curve
@@ -94,6 +95,34 @@ class HullWhiteOutputZCB(BaseOutput):
         return zcb_expiry / zcb_now * np.exp(det_term - stoch_term)
 
 
+class HullWhiteOutputBondIndex(BaseOutput):
+    """
+    Output class for a bond index output for the one-factor Hull-White model
+    """
+    def initialise_output(self):
+        self.alpha = self.model.asset_class.parameters.alpha
+        self.sigma = self.model.asset_class.parameters.sigma
+        self.term = self.output.parameters.term
+        self.ou_process_output = self.get_or_create_output(output_type=OU_PROCESS)
+        self.brownian_motion_output = self.get_or_create_output(output_type=BROWNIAN_MOTION)
+
+    def _calculate_values_for_batch(self, projection_step: int):
+        time = projection_step / self.settings.annualisation_factor
+        det_term = (self.sigma ** 2) / (4.0 * self.alpha ** 3) * (
+            4.0 * time * self.alpha * np.exp(-self.alpha * self.term)
+          - 2.0 * time * self.alpha * np.exp(- 2.0 * self.alpha * self.term)
+          - 3.0 - np.exp(-2.0 * self.alpha * time) + 4 * np.exp(-self.alpha * time)
+        )
+
+        stoch_term = self.sigma / self.alpha * (
+            np.exp(-self.alpha * self.term) * self.brownian_motion_output.calculate_for_batch(projection_step)
+            - self.ou_process_output.calculate_for_batch(projection_step)
+        )
+
+        zcb_now = self.model.yield_curve.get_rate(time, yield_curve.ZCB)
+        return 1.0 / zcb_now * np.exp(det_term + stoch_term)
+
+
 class HullWhiteModel(BaseModel):
     """
     Class for one-factor Hull White model
@@ -108,4 +137,5 @@ class HullWhiteModel(BaseModel):
         DISCOUNT_FACTOR: HullWhiteOutputDiscountFactor,
         CASH_ACCOUNT: HullWhiteOutputCashAccount,
         ZERO_COUPON_BOND: HullWhiteOutputZCB,
+        BOND_INDEX: HullWhiteOutputBondIndex,
     }

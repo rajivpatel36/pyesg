@@ -1,4 +1,5 @@
 # Nominal rates
+BOND_INDEX = 'bond_index'
 CASH_ACCOUNT = 'cash_account'
 DISCOUNT_FACTOR = 'discount_factor'
 ZERO_COUPON_BOND = 'zero_coupon_bond'
